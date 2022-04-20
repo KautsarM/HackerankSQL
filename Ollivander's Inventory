@@ -1,0 +1,22 @@
+# Using MS SQL Server
+# Create ranking based on cheapest wand with high age & power
+with ranking as
+(select
+    w.id,
+    wp.age,
+    w.coins_needed,
+    w.power,
+    rank () over (partition by wp.age, w.power order by w.coins_needed asc, w.power desc) rank
+from wands w
+left join wands_property wp on wp.code = w.code
+where wp.is_evil = 0)
+
+# Pull the first rank for every category of power and age
+select
+    id,
+    age,
+    coins_needed,
+    power
+from ranking
+where rank = 1
+order by power desc, age desc
