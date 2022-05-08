@@ -1,0 +1,30 @@
+# MS SQL Server
+
+# Core list
+with list as(
+    select
+        h.hacker_id,
+        h.name,
+        count(c.challenge_id) challenges_created
+    from Hackers h
+    left join Challenges c on c.hacker_id = h.hacker_id
+    group by h.hacker_id, h.name
+),
+
+# Filter table
+filter as(
+    select
+        challenges_created,
+        count(*) occurence
+    from list
+    group by challenges_created
+)
+
+select 
+    list.hacker_id,
+    list.name,
+    list.challenges_created
+from list
+left join filter on list.challenges_created = filter.challenges_created
+where list.challenges_created = (select max(challenges_created) from list) or filter.occurence = 1
+order by 3 desc, 1
